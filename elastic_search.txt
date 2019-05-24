@@ -1,0 +1,35 @@
+*  relevance (độ liên quan), index (tương đương với database trong mysql), type (tương đương với table trong mysql), document (tương ứng với record trong mysql), term (từ, từ khóa), field (có thể gọi là trường - nhưng mình không thích lắm vì nó có cấu trúc, nên quyết định giữ nguyên)
+
+* Install elastic docker --------- FOR ELASTICSEARCH 7.0.0
+    + Pull: docker pull docker.elastic.co/elasticsearch/elasticsearch:7.0.0
+    + Create container: docker run -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:7.0.0
+    + Setting for vitural memory: sysctl -w vm.max_map_count=262144
+
+* cURL:
+    + List of index: curl http://localhost:9200/_cat/indices?v
+
+    + Create index: curl -X PUT "localhost:9200/team"
+
+    + Check index: curl -X GET "localhost:9200/team"
+
+    + Close index to add properties for "team": curl -X POST "localhost:9200/team/_close"
+
+    + Add properties: curl -X PUT "localhost:9200/team/_mapping" -H "Content-Type: application/json" -d' {"properties":{"id":{"type":"text"}, "name": {"type":"text"}, "email": {"type": "text"}, "age":{"type":"integer"}, "description": {"type": "text"}, "phone": {"type": "text"}, "image":{"type":"text"}, "technologies":{"type":"text"} }}'
+
+    + Open index to add data: curl -X POST "localhost:9200/team/_open"
+
+    + Add data for index: curl -X POST "localhost:9200/team/_bulk" --data-binary @/home/hoang/team.json -H "Content-Type: application/json"
+
+	+ Get all data of index: curl -X GET "localhost:9200/team/_search?size=500&pretty=true&q=*:*"
+
+	+ Search for query: curl -X POST "localhost:9200/team/_search?pretty=true" -H "Content-Type: application/json" -d '{"query": {"match": {"technologies": "ruby"}}}'
+
+---------------------- IF ELASTICSEARCH < 7.0.0
+
++ Add properties: curl -X PUT "localhost:9200/team/_mapping/member" -H "Content-Type: application/json" -d' {"properties":{"id":{"type":"text"}, "name": {"type":"text"}, "email": {"type": "text"}, "age":{"type":"integer"}, "description": {"type": "text"}, "phone": {"type": "text"}, "image":{"type":"text"}, "technologies":{"type":"text"} }}'
+
++ Add data for index: curl -X POST "localhost:9200/team/member/_bulk" --data-binary @/home/hoang/team.json -H "Content-Type: application/json"
+
+------------------------------- MYSQL -> ES
+cd /usr/share/logstash
+sudo bin/logstash --path.settings /etc/logstash/ -f logstash_mysql.conf

@@ -1,0 +1,26 @@
+Viết chạy crontab trong linuxx, chạy các lệnh như sau hằng ngày vào lúc 6h sáng:
+
+
+-, sudo docker run -p 8050:8050 scrapinghub/splash
++, cd ~/Downloads/Information_Retrieval/news
+-, scrapy crawl kenh14
+-, scrapy crawl dantri
++, cd /usr/share/logstash
+-, sudo bin/logstash --path.settings /etc/logstash/ -f logstash_mysql.conf
++, sudo docker rm $(sudo docker ps -a -f status=exited -q)
+
+
+Những lệnh -, chạy lâu nên tìm xem có phải hàm wait hay gì gì để đợi ko hay là nó chạy hết lệnh này xong mới sang lệnh tiếp theo
+Với lại xem lệnh chạy docker lúc đầu có phải tắt k(bình thường phải ctrl + C để tắt docker)
+---------------------------------------------------------------------------------------------------------
+
+lưu vào file /etc/auto.sh: các lệnh này sẽ chạy tuần tự, sau khi lệnh trước chạy xong mới đến lệnh 2 (successful)
+
+docker run -p 8050:8050 scrapinghub/splash && cd ~/Downloads/Information_Retrieval/news && scrapy crawl kenh14 && scrapy crawl dantri && cd /usr/share/logstash && bin/logstash --path.settings /etc/logstash/ -f logstash_mysql.conf && docker rm $(sudo docker ps -a -f status=exited -q)
+
+- gán quyền chmod +x cho file
+- tạo 1 file crontab: sudo crontab -e //sudo cho cron rồi nên những lệnh trong file auto.sh k cần sudo nữa
+- chọn o để thêm nội dung sau: 0 6 * * * sh /etc/auto.sh
+- lưu lại và thoát nhấn ESC, rồi gõ vào :wq nhấn Enter.
+- cuối cùng, khởi động /etc/init.d/crond restart
+
